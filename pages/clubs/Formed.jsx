@@ -4,103 +4,11 @@ var LocationSelector = require('../../components/LocationSelector.jsx');
 var Select = require('react-select');
 
 
-var className = "step1";
-
-var fields = [
-  name: {
-    type: "text",
-    label: "Name",
-    placeholder: "Your full name",
-  },
-  location: {
-    type: LocationSelector,
-    label: "Location",
-    placeholder: "City, Country"    
-  },
-  occupation: {
-    type: "text",
-    label: "Occupation",
-    placeholder: "Student or professional at ..."
-  },
-  regionalCoordinator: {
-    type: "choiceGropup",
-    label: "Are you currently working with a Regional Coordinator?",
-    options: [ "yes", "no" ],
-  }
-  coordinatorName: {
-    type: "text",
-    label: "What is your Regional Coordinator's name?",
-    placeholder: "Name",
-    hidden: true,
-    controller: {
-      field: "regionalCoordinator",
-      value: "yes"
-    }
-  },
-  hostReason: {
-    type: "text",
-    label: "Why do you want to host a Mozilla Club?",
-    placeholder: "Describe what you want to achieve and what your goals are. Minimum length 50 words."
-  },
-  howDidYouHear: {
-    type: Select,
-    label: "How did you hear about Mozilla Clubs?",
-    options: [
-      "from a friend",
-      "from an event",
-      "Mozilla website",
-      "Social media",
-      "other"
-    ],
-    other: {
-      type: "text",
-      placeholder: "Let us know how  you heard about becoming a club captain"
-    }
-  }
-];
-
-var validators = [
-  name: {
-    error: "You must provide a name for your club."
-  },
-  location: {
-    error: "You must provide a location for your club."
-  },
-  occupation: {
-    error: "Please let us know what your occupation is."
-  },
-  regionalCoordinator: {
-    error: "You must say whether you're working with a regional coordinator."
-  },
-  hostReason: [
-    {
-      error: "You must explain the reason for applying."
-    },
-    {
-      validates: function(value) {
-        return value.split(' ').length >= 45;
-      },
-      error: "Please explain the reason for applying in 50 words or more."
-    }
-  ],
-  howDidYouHear: {
-    error: "Please tell us how you heard about this program."
-  }
-];
-
-var progressFields = [
-  "name",
-  "location",
-  "occupation",
-  "regionalCoordinator",
-  "hostReason",
-  "howDidYouHear"
-];
-
-
 var Formed = React.createClass({
   getInitialState: function() {
+    console.log(this.props);
     var initial = {};
+    var fields = this.props.fields || {};
     for (name in fields) { initial[name] = null; }
     return initial;
   },
@@ -125,8 +33,10 @@ var Formed = React.createClass({
   },
 
   setStateAsChange: function(newState) {
-    this.setState(newState, function() {
-      this.props.onChange(newState);
+    this.setState(newState, () => {
+      if (this.props.onChange) {
+        this.props.onChange(newState);
+      }
       if (this.state.errors && this.state.errors.length>0) {
         this.validates();
       }
@@ -136,28 +46,62 @@ var Formed = React.createClass({
   render: function() {
     return (
       <div className={this.props.className}>
-        { ... }
+        { Object.keys(this.props.fields).map(name => this.formFields(name, this.props.fields[name])) }
         { this.renderValidationErrors() }
       </div>
     );
   },
 
-  
+  formFields: function(name, field) {
+    var Type = field.type,
+        ftype = typeof Type,
+        label = field.label,
+        formfield = null;
 
-/*
-  updateName: function(evt) { this.setStateAsChange({ name: evt.target.value }); },
-  updateLocation: function(locationdata) {
-    try { locationdata = JSON.parse(locationdata); }
-    catch (e) { locationdata = { location: null, latitude: null, longitude: null }; }
-    this.setStateAsChange({ location: locationdata });
+    var common = {
+      key: name + 'field',
+      value: this.state[name],
+      onChange: e => this.update(name, e),
+      placeholder: field.placeholder
+    };
+
+    var shouldHide = false;
+    if (field.hidden) {
+      var controller = field.controller.name;
+      var controlValue = field.controller.value;
+      shouldHide = this.state[controller] !== controlValue;
+    }
+
+    if (label) {
+      label = <label key={name + 'label'} hidden={shouldHide}>{label}</label>
+    } else { label = null; }
+
+    if (ftype === "undefined" || Type === "text") {
+      formfield = <input type={Type? Type : "text"} {...common} hidden={shouldHide}/>
+    }
+
+    if (Type === "choiceGroup") {
+      var choices = field.options;
+      formfield = <div className={Type} key={common.key}>{
+        choices.map(value => {
+          return <div><input type="radio" name={name} value={value} checked={this.state[name] === value} onChange={common.onChange}/>{value}</div>;
+        })
+      }
+      </div>;
+    }
+
+    if (ftype === "function") {
+      formfield = <Type {...field} {...common}/>
+    }
+
+    return <fieldset key={name + 'set'}>{ [label, formfield] }</fieldset>;
   },
-  updateOccupation: function(evt) { this.setStateAsChange({ occupation: evt.target.value }); },
-  updateRegionalCoordinator: function(evt) { this.setStateAsChange({ regionalCoordinator: evt.target.value }); },
-  updateCoordinatorName: function(evt) { this.setStateAsChange({ coordinatorName: evt.target.value }); },
-  updateHostReason: function(evt) { this.setStateAsChange({ hostReason: evt.target.value }); },
-  updateHowDidYouHear: function(value) { this.setStateAsChange({ howDidYouHear: value }); },
-  updateHowDidYouActuallyHear: function(evt) { this.setStateAsChange({ howDidYouActuallyHear: evt.target.value }); },
-*/
+
+  update: function(fieldname, e) {
+    var state = {};
+    state[fieldname] = e.target? e.target.value : e;
+    this.setStateAsChange(state);
+  },
 
   getData: function() {
     var data = JSON.parse(JSON.stringify(this.state));
@@ -171,37 +115,6 @@ var Formed = React.createClass({
     var state = this.state;
     var errors = [];
     var errorElements = [];
-
-/*
-    if (!state.name) {
-      errorElements.push('name');
-      errors.push("You must provide a name for your club.");
-    }
-    if (!state.location) {
-      errorElements.push('location');
-      errors.push("You must provide a location for your club.");
-    }
-    if (!state.occupation) {
-      errorElements.push('occupation');
-      errors.push("Please let us know what your occupation is.");
-    }
-    if (!state.regionalCoordinator) {
-      errorElements.push('regionalCoordinator');
-      errors.push("You must say whether you're working with a regional coordinator.");
-    }
-    if (!state.hostReason) {
-      errorElements.push('hostReason');
-      errors.push("You must explain the reason for applying.");
-    }
-    else if (state.hostReason && state.hostReason.split(' ').length < 45) {
-      errorElements.push('hostReason');
-      errors.push("Please explain the reason for applying in 50 words or more.");
-    }
-    if (!state.howDidYouHear) {
-      errorElements.push('howDidYouHear');
-      errors.push("Please tell us how you heard about this program.");
-    }
-*/
 
     this.setState({
       errors: errors,
