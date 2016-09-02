@@ -74,13 +74,8 @@ var Formed = React.createClass({
       inputClass += " nolabel";
     }
 
-<<<<<<< HEAD
     if (ftype === "undefined" || Type === "text") {
       formfield = <input className={inputClass} type={Type? Type : "text"} {...common} hidden={shouldHide}/>;
-=======
-  if (ftype === "undefined" || Type === "text") {
-      formfield = <input className={inputClass} type={Type? Type : "text"} {...common} hidden={shouldHide}/>
->>>>>>> 57ca7b1... .
     }
 
     if (Type === "choiceGroup") {
