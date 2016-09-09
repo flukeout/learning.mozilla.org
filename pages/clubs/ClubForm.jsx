@@ -120,18 +120,18 @@ var ClubForm = React.createClass({
   },
 
   updateProgress: function() {
-    var r1 = this.refs.step1;
-    var r2 = this.refs.step2;
+    // var r1 = this.refs.step1;
+    // var r2 = this.refs.step2;
 
-    if (!r1 || !r2) {
-      return 0;
-    }
+    // if (!r1 || !r2) {
+    //   return 0;
+    // }
 
-    var total = r1.getTotal() + r2.getTotal();
-    var filled = r1.getFilled() + r2.getFilled();
-    var percent = (100*filled/total) | 0;
+    // var total = r1.getTotal() + r2.getTotal();
+    // var filled = r1.getFilled() + r2.getFilled();
+    // var percent = (100*filled/total) | 0;
 
-    this.setState({ progress: percent });
+    // this.setState({ progress: percent });
   },
 
   prevStep: function() {
