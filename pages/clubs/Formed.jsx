@@ -10,12 +10,12 @@ var Formed = React.createClass({
     var fields = this.props.fields || {};
 
     this.progressFields = [];
-    for (let name of fields) {
+    Object.keys(fields).forEach(name => {
       initial[name] = null;
       if (fields[name].metered) {
         this.progressFields.push(name);
       }
-    }
+    });
     initial.errors = [];
     initial.errorElements = [];
     return initial;
@@ -76,14 +76,14 @@ var Formed = React.createClass({
 
     if (ftype === "undefined" || Type === "text") {
       formfield = <input className={inputClass} type={Type? Type : "text"} {...common} hidden={shouldHide}/>;
-    }
-
-    if (Type === "choiceGroup") {
+    } else if (Type === "textarea") {
+      formfield = <textarea className={inputClass} {...common} hidden={shouldHide}/>;
+    } else if (Type === "choiceGroup") {
       var choices = field.options;
 
       formfield = <div className={Type} key={common.key}>{
         choices.map(value => {
-          return <div><input className={inputClass} type="radio" name={name} value={value} checked={this.state[name] === value} onChange={common.onChange}/>{value}</div>;
+          return <div key={value}><input className={inputClass} type="radio" name={name} value={value} checked={this.state[name] === value} onChange={common.onChange}/>{value}</div>;
         })
       }
       </div>;
@@ -120,6 +120,7 @@ var Formed = React.createClass({
     delete data.hidden;
     delete data.errors;
     delete data.errorElements;
+
     return data;
   },
 
@@ -129,9 +130,9 @@ var Formed = React.createClass({
     var errorElements = [];
     var fields = this.props.fields || {};
 
-    for (let name of fields) {
+    Object.keys(fields).forEach(name => {
       this.validateField(name, errors, errorElements);
-    }
+    });
 
     this.setState({
       errors: errors,

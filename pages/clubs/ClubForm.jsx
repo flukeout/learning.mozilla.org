@@ -142,20 +142,15 @@ var ClubForm = React.createClass({
 
   nextStep: function() {
     var refname = 'step' + (this.state.currentStep+1);
-    var curRef = this.refs[refname];
-    var validates = curRef.validates();
+    var nextStep = Math.min(this.state.currentStep + 1, 2);
+    var goToNext = function() {
+      this.setState({ currentStep: nextStep });
+    }.bind(this);
 
-    if (validates) {
-      var nextStep = Math.min(this.state.currentStep + 1, 2);
-      var goToNext = function() {
-        this.setState({ currentStep: nextStep });
-      }.bind(this);
-
-      if (this.state.currentStep === 1) {
-        this.submitForm(goToNext);
-      } else {
-        goToNext();
-      }
+    if (this.state.currentStep === 1) {
+      this.submitForm(goToNext);
+    } else {
+      goToNext();
     }
   },
 

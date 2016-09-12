@@ -6,9 +6,9 @@ var Select = require('react-select');
 var Formed = require('./Formed.jsx');
 
 var fields = {
-  name: {
+  'full_name': {
     type: "text",
-    label: "FullName",
+    label: "Name",
     placeholder: "Your full name",
     validator: {
       error: "You must provide a name for your club."
@@ -53,7 +53,7 @@ var fields = {
     }
   },
   hostReason: {
-    type: "text",
+    type: "textarea",
     label: "Why do you want to host a Mozilla Club?",
     placeholder: "Describe what you want to achieve and what your goals are. Minimum length 50 words.",
     validator: [

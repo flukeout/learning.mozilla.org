@@ -1,6 +1,107 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var Select = require('react-select');
+var Formed = require('./Formed.jsx');
+
+var fields = {
+  intent: {
+    type: "choiceGroup",
+    label: "Do you want to...",
+    options: [
+      " Start a new club",
+      " Integrate a Mozilla Club with your existing program"
+    ],
+    validator: {
+      error: "You need to fill in this part of the application."
+    }
+  },
+  name: {
+    type: "text",
+    label: "Name your club",
+    placeholder: "Your club name.",
+    validator: {
+      error: "You need to fill in the name of your club."
+    }
+  },
+  description: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  }
+  /*,
+  meetingVenue: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  },
+  frequency: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  },
+  ageRange: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  },
+  clubSize: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  },
+  audienceType: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  },
+  meetingSubjects: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  },
+  pledgeAgreement: {
+    type: "",
+    label: "",
+    placeholder: "",
+    validator: {
+      error: ""
+    }
+  }
+  */
+};
+
+var StepTwo = React.createClass({
+  render: function() {
+    return <Formed {...{ fields, onChange: this.props.onChange, onProgress: this.props.onProgress }} />;
+  }
+});
+
+module.exports = StepTwo;
+
+
+/*
 var startlabels = {
   name: "Name your club",
   description: "Description for your club",
@@ -370,3 +471,5 @@ var StepTwo = React.createClass({
 });
 
 module.exports = StepTwo;
+
+*/
