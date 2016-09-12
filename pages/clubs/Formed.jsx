@@ -30,7 +30,7 @@ var Formed = React.createClass({
     );
   },
 
-  update: function() {
+  getProgress: function() {
     var state = this.state;
     // get the number of required fields that have a value filled in.
     var reduced = progressFields.reduce(function(a,b) {
@@ -43,6 +43,8 @@ var Formed = React.createClass({
   },
 
   formFields: function(name, field) {
+    field.name = name;
+
     var Type = field.type,
         ftype = typeof Type,
         label = field.label,
@@ -53,7 +55,7 @@ var Formed = React.createClass({
     var common = {
       key: name + 'field',
       value: this.state[name],
-      onChange: e => this.update(name, e),
+      onChange: e => this.update(field, e),
       placeholder: field.placeholder
     };
 
@@ -78,6 +80,13 @@ var Formed = React.createClass({
       formfield = <input className={inputClass} type={Type? Type : "text"} {...common} hidden={shouldHide}/>;
     } else if (Type === "textarea") {
       formfield = <textarea className={inputClass} {...common} hidden={shouldHide}/>;
+    } else if (Type === "checkbox") {
+      formfield = <div>
+        <input className={inputClass} {...common} type={Type} hidden={shouldHide}/>
+        { label }
+        }
+      </div>;
+      label = null;
     } else if (Type === "choiceGroup") {
       var choices = field.options;
 
@@ -96,10 +105,16 @@ var Formed = React.createClass({
     return <fieldset key={name + 'set'}>{ [label, formfield] }</fieldset>;
   },
 
-  update: function(fieldname, e) {
+  update: function(field, e) {
     var state = {};
+    var fieldname = field.name;
 
-    state[fieldname] = e.target? e.target.value : e;
+    if (field.type === "checkbox") {
+      state[fieldname] = e.target? e.target.checked : false;
+    } else {
+      state[fieldname] = e.target? e.target.value : e;
+    }
+
     this.setStateAsChange(fieldname, state);
   },
 

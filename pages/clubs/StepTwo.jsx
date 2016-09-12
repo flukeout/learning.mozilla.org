@@ -25,22 +25,36 @@ var fields = {
     }
   },
   description: {
-    type: "",
-    label: "",
-    placeholder: "",
-    validator: {
-      error: ""
-    }
-  }
-  /*,
+    type: "textarea",
+    label: "Description for your club.",
+    placeholder: "Describe what you want to achieve and what your goals are. Minimum length 50 words.",
+    validator: [
+      {
+        error: "You must describe your club."
+      },
+      {
+        validate: function(value) {
+          if (!value) {
+            return false;
+          }
+
+          var count = value.trim().split(' ').length;
+
+          return count < 45;
+        },
+        error: "Please describe your club using 45 words or more."
+      }
+    ]
+  },
   meetingVenue: {
-    type: "",
-    label: "",
-    placeholder: "",
+    type: "text",
+    label: "Where will you meet",
+    placeholder: "Name of the venue where you will meet",
     validator: {
-      error: ""
+      error: "Please let us know where your club meets."
     }
   },
+  /*
   frequency: {
     type: "",
     label: "",
@@ -64,32 +78,30 @@ var fields = {
     validator: {
       error: ""
     }
-  },
+  }, */
   audienceType: {
-    type: "",
-    label: "",
-    placeholder: "",
+    type: "text",
+    label: "What occupations will your audience have?",
+    placeholder: "Students, professionals, community leaders, etc...",
     validator: {
-      error: ""
+      error: "Please let us know what kind of audience your club is for."
     }
   },
   meetingSubjects: {
-    type: "",
-    label: "",
-    placeholder: "",
+    type: "text",
+    label: "What topics/subjects will you teach?",
+    placeholder: "Web literacy, 21st century skills, online privacy, social media, etc...",
     validator: {
-      error: ""
+      error: "Please let us know what topics and subjects your club covers."
     }
   },
   pledgeAgreement: {
-    type: "",
-    label: "",
-    placeholder: "",
+    type: "checkbox",
+    label: <span>I agree to the <a target="_blank" href="https://mozilla.github.io/learning-networks/clubs/pledge/#introduction">Mozilla Club Captain Pledge</a></span>,
     validator: {
-      error: ""
+      error: "You must agree to the Club Captain Pledge before you can submit this application."
     }
   }
-  */
 };
 
 var StepTwo = React.createClass({
