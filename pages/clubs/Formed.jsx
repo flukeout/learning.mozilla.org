@@ -12,6 +12,9 @@ var Formed = React.createClass({
     this.progressFields = [];
     Object.keys(fields).forEach(name => {
       initial[name] = null;
+      if (fields[name].type === "checkboxGroup") {
+        initial[name] = [];
+      }
       if (fields[name].metered) {
         this.progressFields.push(name);
       }
@@ -34,8 +37,7 @@ var Formed = React.createClass({
     var state = this.state;
     // get the number of required fields that have a value filled in.
     var reduced = progressFields.reduce(function(a,b) {
-      b = state[b];
-      return a + this.hasFieldValue(b)? 1 : 0;
+      return a + this.hasFieldValue(b, state[b])? 1 : 0;
     }, 0);
     var total = this.progressFields.length;
 
@@ -59,13 +61,17 @@ var Formed = React.createClass({
       placeholder: field.placeholder
     };
 
-    var shouldHide = false;
+    var shouldHide = false, choices = false;
 
     if (field.controller) {
       var controller = field.controller.name;
       var controlValue = field.controller.value;
 
-      shouldHide = this.state[controller] !== controlValue;
+      if (this.props.fields[controller].type === "checkboxGroup") {
+        shouldHide = this.state[controller].indexOf(controlValue) === -1;
+      } else {
+        shouldHide = this.state[controller] !== controlValue;
+      }
     }
 
     if (label) {
@@ -88,14 +94,25 @@ var Formed = React.createClass({
       </div>;
       label = null;
     } else if (Type === "choiceGroup") {
-      var choices = field.options;
-
-      formfield = <div className={Type} key={common.key}>{
-        choices.map(value => {
-          return <div key={value}><input className={inputClass} type="radio" name={name} value={value} checked={this.state[name] === value} onChange={common.onChange}/>{value}</div>;
-        })
-      }
-      </div>;
+      choices = field.options;
+      formfield = (
+        <div className={Type} key={common.key}>{
+          choices.map(value => {
+            return <div key={value}><input className={inputClass} type="radio" name={name} value={value} checked={this.state[name] === value} onChange={common.onChange}/>{value}</div>;
+          })
+        }
+        </div>
+      );
+    } else if (Type === "checkboxGroup") {
+      choices = field.options;
+      formfield = (
+        <div className={Type} key={common.key}>{
+          choices.map(value => {
+            return <div key={value}><input className={inputClass} type="checkbox" name={name} value={value} checked={this.state[name].indexOf(value)>-1} onChange={common.onChange}/>{value}</div>;
+          })
+        }
+        </div>
+      );
     }
 
     if (ftype === "function") {
@@ -108,24 +125,35 @@ var Formed = React.createClass({
   update: function(field, e) {
     var state = {};
     var fieldname = field.name;
+    var value = e.target? e.target.value : undefined;
 
     if (field.type === "checkbox") {
       state[fieldname] = e.target? e.target.checked : false;
+    } else if (field.type === "checkboxGroup") {
+      var curval = this.state[fieldname];
+      var pos = curval.indexOf(value);
+
+      if (pos === -1) {
+        curval.push(value);
+      } else {
+        curval.splice(pos,1);
+      }
+
+      state[fieldname] = curval;
     } else {
-      state[fieldname] = e.target? e.target.value : e;
+      state[fieldname] = (value !== undefined) ? value : e;
     }
 
     this.setStateAsChange(fieldname, state);
   },
 
   setStateAsChange: function(fieldname, newState) {
+    console.log(fieldname, newState);
     this.setState(newState, () => {
       if (this.props.onChange) {
         this.props.onChange(newState);
       }
-      // if (this.state.errors && this.state.errors.length>0) {
       this.validates();
-      // }
     });
   },
 
@@ -175,7 +203,7 @@ var Formed = React.createClass({
       if (validator.validate) {
         err = validator.validate(value);
       } else {
-        err = !this.hasFieldValue(this.state[name]);
+        err = !this.hasFieldValue(name, this.state[name]);
       }
       if (err && this.passesControl(name)) {
         errors.push(validator.error);
@@ -197,13 +225,21 @@ var Formed = React.createClass({
       return true;
     }
 
-    return this.state[control.name] === control.value;
+    var passes = false;
+
+    if (this.props.fields[control.name].type === "checkboxGroup") {
+      passes = this.state[control.name].indexOf(control.value) > -1;
+    } else {
+      passes = this.state[control.name] === control.value;
+    }
+
+    return passes;
   },
 
   // A field has a value if it's not null, falsey, an empty array, and the
   // field is not optional. In any of these cases, this field doesn't count
   // (and so reduces by adding 0 to the running tally, rather than 1).
-  hasFieldValue: function(value) {
+  hasFieldValue: function(name, value) {
     if (value === null) {
       return false;
     }

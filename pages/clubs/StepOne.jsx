@@ -2,7 +2,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var LocationSelector = require('../../components/LocationSelector.jsx');
 var Select = require('react-select');
-
 var Formed = require('./Formed.jsx');
 
 var fields = {
@@ -33,7 +32,7 @@ var fields = {
   regionalCoordinator: {
     type: "choiceGroup",
     label: "Are you currently working with a Regional Coordinator?",
-    options: [ " Yes", " No" ],
+    options: [ "Yes", "No" ],
     validator: {
       error: "You must say whether or not you're working with a regional coordinator."
     }
@@ -44,7 +43,7 @@ var fields = {
     placeholder: "Name",
     controller: {
       name: "regionalCoordinator",
-      value: " Yes"
+      value: "Yes"
     },
     // this field does not count towards total form completion
     metered: false,
